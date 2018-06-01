@@ -1,0 +1,60 @@
+version: "1.0"
+description: "Cycle D4 WordPress Stack File"
+containers:
+  db:
+    name: "Database"
+    image:
+      name: "MySQL"
+      source: 
+        docker_hub:
+          target: "mongo:3.6"
+      preload: false
+    volumes:
+      - local: 
+          max_size: "2G"
+        destination: "/data/db"
+        read_only: false
+        remote_access:
+          enable: true,
+          default_password: 
+ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff
+    config:
+      runtime:
+        command:
+          path: "/entrypoint.sh"
+          args: "mongod --auth"
+        privileged: false
+        capabilities: []
+        namespaces: ["network", "ipc", "uts", "mount", "pid"]
+      network:
+        public: "enable"
+        hostname: "db"
+        ports: ["27017"]
+        dns:
+          nameservers: ["8.8.4.4", "8.8.8.8"]
+      deployment:
+        instances: 1
+        tags:
+          require: ["db"]
+          pool: ["sjc", "nyc"]
+      resources:
+        cpu:
+          limit: "0.5cores"
+          reserve: "0.1cores"
+        ram:
+          limit: "2G"
+          reserve: "250M"
+      options:
+        events:
+          start:
+            webhooks: []
+          stop:
+            webhooks: []
+          deploy:
+            webhooks: []
+        monitor:
+          auto_restart: true
+          max_restarts: 3
+          restart_delay_secs: 10
+          notify:
+            emails: ["alex@alexmattoni.com"]
